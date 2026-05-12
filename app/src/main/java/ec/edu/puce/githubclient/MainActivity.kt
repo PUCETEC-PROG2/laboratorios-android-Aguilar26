@@ -1,4 +1,4 @@
-package ec.edu.puce.githubclient // Asegúrate de que este sea tu package real
+package ec.edu.puce.githubclient
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Llamamos a la lista completa que creaste
+
                     RepoList()
                 }
             }
