@@ -16,8 +16,10 @@ import ec.edu.puce.githubclient.viewmodel.RepoUiState
 import ec.edu.puce.githubclient.viewmodel.RepoViewModel
 
 @Composable
-fun RepoList(viewModel: RepoViewModel = viewModel()) {
-
+fun RepoList(
+    onCreateClick: () -> Unit,
+    viewModel: RepoViewModel = viewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     when (uiState) {
@@ -44,16 +46,26 @@ fun RepoList(viewModel: RepoViewModel = viewModel()) {
 
         is RepoUiState.Success -> {
             val repos = (uiState as RepoUiState.Success).repos
-            LazyColumn(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                items(repos) { repo ->
-                    RepoItem(
-                        name = repo.name,
-                        avatarUrl = repo.owner.avatarUrl,
-                        description = repo.description ?: "Sin descripción",
-                        language = repo.language ?: "No especificado"
-                    )
+            Column {
+                Button(
+                    onClick = onCreateClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text("Crear Repositorio")
+                }
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    items(repos) { repo ->
+                        RepoItem(
+                            name = repo.name,
+                            avatarUrl = repo.owner.avatarUrl,
+                            description = repo.description ?: "Sin descripción",
+                            language = repo.language ?: "No especificado"
+                        )
+                    }
                 }
             }
         }
