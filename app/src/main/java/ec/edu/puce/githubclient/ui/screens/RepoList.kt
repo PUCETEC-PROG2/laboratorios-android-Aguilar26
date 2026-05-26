@@ -3,18 +3,23 @@ package ec.edu.puce.githubclient.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.puce.githubclient.ui.components.RepoItem
 import ec.edu.puce.githubclient.viewmodel.RepoUiState
 import ec.edu.puce.githubclient.viewmodel.RepoViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoList(
     onCreateClick: () -> Unit,
@@ -22,41 +27,64 @@ fun RepoList(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    when (uiState) {
-        is RepoUiState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Mis Repositorios") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1565C0),
+                    titleContentColor = Color.White
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onCreateClick,
+                shape = CircleShape,
+                containerColor = Color(0xFF1976D2),
+                contentColor = Color.White
             ) {
-                CircularProgressIndicator()
-            }
-        }
-
-        is RepoUiState.Error -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Error: ${(uiState as RepoUiState.Error).message}",
-                    color = MaterialTheme.colorScheme.error
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Crear repositorio"
                 )
             }
         }
+    ) { paddingValues ->
 
-        is RepoUiState.Success -> {
-            val repos = (uiState as RepoUiState.Success).repos
-            Column {
-                Button(
-                    onClick = onCreateClick,
+        when (uiState) {
+            is RepoUiState.Loading -> {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Crear Repositorio")
+                    CircularProgressIndicator()
                 }
+            }
+
+            is RepoUiState.Error -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Error: ${(uiState as RepoUiState.Error).message}",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            is RepoUiState.Success -> {
+                val repos = (uiState as RepoUiState.Success).repos
                 LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp)
                 ) {
                     items(repos) { repo ->
                         RepoItem(

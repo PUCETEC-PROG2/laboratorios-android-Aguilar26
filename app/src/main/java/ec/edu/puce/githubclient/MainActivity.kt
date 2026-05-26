@@ -14,6 +14,11 @@ import androidx.compose.ui.Modifier
 import ec.edu.puce.githubclient.ui.screens.CreateRepoScreen
 import ec.edu.puce.githubclient.ui.screens.RepoList
 
+sealed class Screen {
+    object RepoList : Screen()
+    object CreateRepo : Screen()
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,16 +28,20 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var showForm by remember { mutableStateOf(false) }
+                    var currentScreen by remember { mutableStateOf<Screen>(Screen.RepoList) }
 
-                    if (showForm) {
-                        CreateRepoScreen(
-                            onRepoCreated = { showForm = false }
-                        )
-                    } else {
-                        RepoList(
-                            onCreateClick = { showForm = true }
-                        )
+                    when (currentScreen) {
+                        is Screen.RepoList -> {
+                            RepoList(
+                                onCreateClick = { currentScreen = Screen.CreateRepo }
+                            )
+                        }
+                        is Screen.CreateRepo -> {
+                            CreateRepoScreen(
+                                onRepoCreated = { currentScreen = Screen.RepoList },
+                                onNavigateBack = { currentScreen = Screen.RepoList }
+                            )
+                        }
                     }
                 }
             }
