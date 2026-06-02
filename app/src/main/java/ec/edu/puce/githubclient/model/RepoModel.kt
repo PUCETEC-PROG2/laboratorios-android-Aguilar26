@@ -2,6 +2,8 @@ package ec.edu.puce.githubclient.model
 
 import com.google.gson.annotations.SerializedName
 
+
+
 data class RepoModel(
     val id: Long,
     val name: String,
@@ -14,4 +16,12 @@ data class RepoModel(
 data class Owner(
     @SerializedName("avatar_url")
     val avatarUrl: String
+)
+
+
+data class CreateRepoRequest(
+    val name: String,
+    val description: String?,
+    @SerializedName("private")
+    val isPrivate: Boolean = false
 )

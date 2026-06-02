@@ -39,7 +39,7 @@ import ec.edu.puce.githubclient.viewmodel.RepoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RepoForm(onNavigateBack: () -> Unit) {
+fun RepoForm(onNavigateBack: () -> Unit, content: @Composable (Modifier) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,7 +55,8 @@ fun RepoForm(onNavigateBack: () -> Unit) {
             )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues))
+        // Aquí se le aplica el padding correcto al contenido que viene de CreateRepoScreen
+        content(Modifier.padding(paddingValues))
     }
 }
 
@@ -77,69 +78,70 @@ fun CreateRepoScreen(
         }
     }
 
-    RepoForm(onNavigateBack = onNavigateBack)
+    // Envolvemos el diseño original dentro de tu RepoForm heredando los modificadores de espacio
+    RepoForm(onNavigateBack = onNavigateBack) { scaffoldModifier ->
+        Box(modifier = Modifier.fillMaxSize().then(scaffoldModifier)) {
 
-    Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Crear Repositorio",
+                    style = MaterialTheme.typography.headlineMedium
+                )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Crear Repositorio",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nombre del repositorio") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Descripción") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
-            )
-
-            if (createState is CreateRepoState.Loading) {
                 Spacer(modifier = Modifier.height(24.dp))
-                CircularProgressIndicator()
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nombre del repositorio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Descripción") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3
+                )
+
+                if (createState is CreateRepoState.Loading) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    CircularProgressIndicator()
+                }
+
+                if (createState is CreateRepoState.Error) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = (createState as CreateRepoState.Error).message,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
 
-            if (createState is CreateRepoState.Error) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = (createState as CreateRepoState.Error).message,
-                    color = MaterialTheme.colorScheme.error
+            FloatingActionButton(
+                onClick = { if (name.isNotBlank()) viewModel.createRepo(name, description) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                shape = CircleShape,
+                containerColor = Color(0xFF1976D2),
+                contentColor = Color.White
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Crear repositorio"
                 )
             }
-        }
-
-        FloatingActionButton(
-            onClick = { if (name.isNotBlank()) viewModel.createRepo(name, description) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            shape = CircleShape,
-            containerColor = Color(0xFF1976D2),
-            contentColor = Color.White
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "Crear repositorio"
-            )
         }
     }
 }
